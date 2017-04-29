@@ -28,21 +28,25 @@ class PredicateFilter[T <: Data](dtype: T, f: T => Bool) extends Filter(dtype) {
 object SingleFilter {
   def apply[T <: UInt](dtype: T) = 
     // Change function argument of Predicate filter below ----------
-    Module(new PredicateFilter(dtype, (x: T) => false.B))
+    Module(new PredicateFilter(dtype, (x: T) => {x <= 9.U}))
     // Change function argument of Predicate filter above ----------
 }
 
 object EvenFilter {
   def apply[T <: UInt](dtype: T) = 
     // Change function argument of Predicate filter below ----------
-    Module(new PredicateFilter(dtype, (x: T) => false.B))
+    Module(new PredicateFilter(dtype, (x: T) => {(x % 2.U) === 0.U}))
     // Change function argument of Predicate filter above ----------
 }
 
 class SingleEvenFilter[T <: UInt](dtype: T) extends Filter(dtype) {
   // Implement composition below ----------
-
-  io.out <> io.in
+  val single = SingleFilter(dtype)
+  val even = EvenFilter(dtype)
+  single.io.in := io.in
+  even.io.in := io.in
+  io.out.valid := single.io.out.valid & even.io.out.valid
+  io.out.bits := io.in.bits
 
   // Implement composition above ----------
 }

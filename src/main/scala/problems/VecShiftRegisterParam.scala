@@ -16,7 +16,11 @@ class VecShiftRegisterParam(val n: Int, val w: Int) extends Module {
   })
 
   // Implement below ----------
-
-  io.out := 0.U
+  val iv = Vec.fill(n){0.U(w.W)}
+  val data = RegInit(Vec(n, UInt(w.W)), iv)
+  for (i <- n-1 to 1 by -1)
+      data(i) := data(i-1)
+  data(0) := io.in
+  io.out := data(n-1)
 }
 // Implement above ----------
